@@ -19,7 +19,7 @@
 #   rm -f ~/.zcompdump; compinit
 
 _darwinup() {
-  local -a commands archives
+  local -a commands
   commands=(
     "files:List the files and directories in the archive"
     "install:Install the root at path"

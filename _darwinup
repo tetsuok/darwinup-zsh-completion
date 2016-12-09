@@ -1,0 +1,108 @@
+#compdef darwinup
+# Copyright (c) 2016 Tetsuo Kiso All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Installation
+#
+#   fpath=(/path/to/darwinup-zsh-completion $fpath)
+#   rm -f ~/.zcompdump; compinit
+
+_darwinup() {
+  local -a commands archives
+  commands=(
+    "files:List the files and directories in the archive"
+    "install:Install the root at path"
+    "list:List installed archives"
+    "rename:Rename an archive"
+    "uninstall:Uninstall the specified archive"
+    "forget:Forget the specified archive"
+    "upgrade:Find the last archive that was installed with the same basename, and replace it with the root at path"
+    "verify:List the information about the archive"
+  )
+
+  _arguments \
+    "-h[Show help]" \
+    "-d[Disable helpful automation]" \
+    "-f[Force operation to succeed at all costs]" \
+    "-n[Dry run]" \
+    "-p+[Operate on roots under DIR (default: /)]:directories:_directories" \
+    "-r[Gracefully restart when finished]" \
+    "-v[Verbose (use -vv for extra verbosity)]" \
+    "1: :{_describe 'command' commands}" \
+    "*:: :->args"
+
+  case $state in
+    args)
+      __get_archives() {
+        darwinup list | tail -n +3 | sed -e 's/ /:/' | tr -s ' ' | sed -e 's/ //'
+      }
+
+      __archives() {
+        local -a archives
+        archives=(
+          "newest:The newest (last) root installed"
+          "oldedst:The oldest root installed"
+          "superseded:all roots that have been fully replaced by newer roots"
+          "all:all installed roots"
+        )
+        archives+=(${(fo)"$(__get_archives)"})
+        _describe 'archives' archives
+      }
+
+      case $words[1] in
+        files)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+        install)
+          _arguments \
+            "*:files:_files"
+          ;;
+        list)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+        rename)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+        uninstall)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+        forget)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+        upgrade)
+          _arguments \
+            "*:files:_files"
+          ;;
+        verify)
+          _arguments \
+            "*:archives:__archives"
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_darwinup
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
